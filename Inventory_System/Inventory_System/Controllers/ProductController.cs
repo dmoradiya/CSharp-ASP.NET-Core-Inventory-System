@@ -35,7 +35,7 @@ namespace Inventory_System.Controllers
                 // Id Validation
                 if (string.IsNullOrWhiteSpace(id))
                 {
-                    exception.ValidationExceptions.Add(new Exception("Category ID not Provided"));
+                    exception.ValidationExceptions.Add(new Exception("Product ID not Provided"));
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace Inventory_System.Controllers
             {
                 if (string.IsNullOrWhiteSpace(id))
                 {
-                    exception.ValidationExceptions.Add(new Exception("Category ID not Provided"));
+                    exception.ValidationExceptions.Add(new Exception("Product ID not Provided"));
                 }
                 else
                 {
@@ -165,6 +165,93 @@ namespace Inventory_System.Controllers
             }
            
             return result;
+        }
+        public Product ReceiveProductByID(string id)
+        {
+            Product result;
+            int parsedID = 0;
+
+            ValidationException exception = new ValidationException();
+
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : null;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Product ID not Provided"));
+                }
+                else
+                {
+                    if (!int.TryParse(id, out parsedID))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("ID not Valid"));
+                    }
+                    else
+                    {
+                        if (!context.Products.Any(x => x.ID == parsedID))
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
+                        }
+                    }
+                }
+
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+
+                    result.Quantity++;
+                    context.SaveChanges();
+                
+            }
+
+            return result;
+
+        }
+        public Product SendProductByID(string id)
+        {
+            Product result;
+            int parsedID = 0;
+
+            ValidationException exception = new ValidationException();
+
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : null;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Product ID not Provided"));
+                }
+                else
+                {
+                    if (!int.TryParse(id, out parsedID))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("ID not Valid"));
+                    }
+                    else
+                    {
+                        if (!context.Products.Any(x => x.ID == parsedID))
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
+                        }
+                    }
+                }
+
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+                if (result.Quantity <= 0)
+                {
+                    exception.ValidationExceptions.Add(new Exception("Not have enough Quantity to Send Product"));
+                }
+                else
+                {
+                    result.Quantity--;
+                    context.SaveChanges();
+                }
+               
+
+            }
+
+            return result;
+
         }
 
     }
