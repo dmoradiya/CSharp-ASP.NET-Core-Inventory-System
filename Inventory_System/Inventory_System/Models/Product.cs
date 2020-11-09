@@ -23,7 +23,7 @@ namespace Inventory_System.Models
         public int Quantity { get; set; }
        
         [Column(TypeName = "bool")]
-        public int Discontinue { get; set; }
+        public bool Discontinue { get; set; }
 
     }
       
