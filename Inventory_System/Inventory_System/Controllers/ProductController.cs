@@ -17,7 +17,7 @@ namespace Inventory_System.Controllers
         }
 
         // Method
-        public void CreateProduct(string id, string name,  string discontinue, string quantity= "0")
+        public Product CreateProduct(string id, string name,  string discontinue, string quantity= "0")
         {
             int parsedID = 0;
             int parsedQuantity = 0;
@@ -105,7 +105,67 @@ namespace Inventory_System.Controllers
                     }
                     
                 }
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }
+
+                Product newProduct = new Product()
+                {
+                    ID = parsedID,
+                    Name = name,
+                    Discontinue = Convert.ToBoolean(discontinue),
+                    Quantity = parsedQuantity
+                };
+                context.Products.Add(newProduct);
+                context.SaveChanges();
+                return newProduct;
             }
         }
+        public Product DiscontinueProductByID(string id)
+        {
+            Product result;
+            int parsedID = 0;
+
+            ValidationException exception = new ValidationException();
+
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : null;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Category ID not Provided"));
+                }
+                else
+                {
+                    if (!int.TryParse(id, out parsedID))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("ID not Valid"));
+                    }
+                    else
+                    {
+                        if (!context.Products.Any(x => x.ID == parsedID))
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
+                        }
+                    }
+                }
+
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+                if (result.Discontinue == true)
+                {
+                    exception.ValidationExceptions.Add(new Exception("Product is Already Disconinued"));
+                }
+                else
+                {
+                    result.Discontinue = true;
+                    context.SaveChanges();
+                }
+            }
+           
+            return result;
+        }
+
     }
 }
