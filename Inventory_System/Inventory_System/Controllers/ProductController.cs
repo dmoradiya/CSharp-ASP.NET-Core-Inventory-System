@@ -253,6 +253,52 @@ namespace Inventory_System.Controllers
             return result;
 
         }
+        public List<Product> GetInventory()
+        {
+            List<Product> result;
+            using (InventoryContext context = new InventoryContext())
+            {
+                result = context.Products.ToList();
+            }
+            return result;
+        }
 
+        public Product GetProductByID(string id)
+        {
+            Product result;
+            int parsedID = 0;
+
+            ValidationException exception = new ValidationException();
+
+            id = !string.IsNullOrWhiteSpace(id) ? id.Trim() : null;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Product ID not Provided"));
+                }
+                else
+                {
+                    if (!int.TryParse(id, out parsedID))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("ID not Valid"));
+                    }
+                    else
+                    {
+                        if (!context.Products.Any(x => x.ID == parsedID))
+                        {
+                            result = null;
+                            exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
+                        }
+                    }
+                }
+
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+               
+            }
+
+            return result;
+        }
     }
 }
