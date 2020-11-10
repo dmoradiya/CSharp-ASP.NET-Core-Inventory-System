@@ -36,6 +36,78 @@ namespace Inventory_System.Controllers
             return result;
 
         }
+        [HttpPatch("Discontinue")]
+        public ActionResult<Product> DiscontinueProductByID_PATCH(string id)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().DiscontinueProductByID(id);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Discontinuing... " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+
+        }
+        [HttpPatch("Receive")]
+        public ActionResult<Product> ReceiveProductByID_PATCH(string id, string quantity)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().ReceiveProductByID(id, quantity);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Receiving Product... " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+
+        }
+        [HttpPatch("Send")]
+        public ActionResult<Product> SendProductByID_PATCH(string id, string quantity)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().SendProductByID(id, quantity);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Receiving Product... " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+
+        }
 
 
     }

@@ -152,24 +152,32 @@ namespace Inventory_System.Controllers
                     }
                 }
 
+               
+
                 result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+                
                 if (result.Discontinue == true)
                 {
-                    exception.ValidationExceptions.Add(new Exception("Product is Already Disconinued"));
+                    exception.ValidationExceptions.Add(new Exception("Product is Already Discontinued"));
                 }
-                else
+
+                if (exception.ValidationExceptions.Count > 0)
                 {
-                    result.Discontinue = true;
-                    context.SaveChanges();
+                    throw exception;
                 }
+
+                result.Discontinue = true;
+                    context.SaveChanges();
+                
             }
            
             return result;
         }
-        public Product ReceiveProductByID(string id)
+        public Product ReceiveProductByID(string id, string quantity)
         {
             Product result;
             int parsedID = 0;
+            int parsedQuantity = 0;
 
             ValidationException exception = new ValidationException();
 
@@ -195,10 +203,33 @@ namespace Inventory_System.Controllers
                         }
                     }
                 }
+                if (string.IsNullOrWhiteSpace(quantity))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Quantity not Provided"));
+                }
+                else
+                {
+                    if (!int.TryParse(quantity, out parsedQuantity))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("Quantity not Valid"));
+                    }
+                    else
+                    {
+                        if (parsedQuantity < 0)
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Quantity Cannot be Negative Value"));
+                        }
+                    }
+                }
+
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }
 
                 result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
 
-                    result.Quantity++;
+                    result.Quantity += parsedQuantity;
                     context.SaveChanges();
                 
             }
@@ -206,10 +237,11 @@ namespace Inventory_System.Controllers
             return result;
 
         }
-        public Product SendProductByID(string id)
+        public Product SendProductByID(string id, string quantity)
         {
             Product result;
             int parsedID = 0;
+            int parsedQuantity = 0;
 
             ValidationException exception = new ValidationException();
 
@@ -235,17 +267,41 @@ namespace Inventory_System.Controllers
                         }
                     }
                 }
-
-                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
-                if (result.Quantity <= 0)
+                if (string.IsNullOrWhiteSpace(quantity))
                 {
-                    exception.ValidationExceptions.Add(new Exception("Not have enough Quantity to Send Product"));
+                    exception.ValidationExceptions.Add(new Exception("Quantity not Provided"));
                 }
                 else
                 {
-                    result.Quantity--;
-                    context.SaveChanges();
+                    if (!int.TryParse(quantity, out parsedQuantity))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("Quantity not Valid"));
+                    }
+                    else
+                    {
+                        if (parsedQuantity < 0)
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Quantity Cannot be Negative Value"));
+                        }
+                    }
                 }
+
+               
+
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+                if (result.Quantity < parsedQuantity)
+                {
+                    exception.ValidationExceptions.Add(new Exception("Not have enough Quantity to Send Product"));
+                }
+
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }
+
+                result.Quantity -= parsedQuantity;
+                    context.SaveChanges();
+                
                
 
             }
