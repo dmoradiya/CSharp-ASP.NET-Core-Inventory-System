@@ -108,6 +108,42 @@ namespace Inventory_System.Controllers
 
 
         }
+        [HttpGet("FullActiveInventory")]
+        public ActionResult<IEnumerable<Product>> GetActiveInventoty_GET()
+        {
+            return new ProductController().GetInventory().OrderBy(x=>x.Quantity).Where(x => x.Discontinue == false).ToList();
+        }
+
+        [HttpGet("FullInventory")]
+        public ActionResult<IEnumerable<Product>> GetFullInventoty_GET()
+        {
+            return new ProductController().GetInventory().OrderBy(x => x.Name).ToList();
+        }
+
+        [HttpGet("OneProduct")]
+        public ActionResult<Product> OneProductByID_GET(string id)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().GetProductByID(id);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Receiving Product... " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+
+        }
 
 
     }

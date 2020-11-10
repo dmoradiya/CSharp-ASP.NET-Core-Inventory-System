@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Inventory_System.Models;
 using Inventory_System.Models.Exceptions;
@@ -149,25 +150,24 @@ namespace Inventory_System.Controllers
                         {
                             exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
                         }
+                        else
+                        {
+                            if (context.Products.Where(x => x.ID == parsedID).Select(x => x.Discontinue == true).SingleOrDefault())
+                            {
+                                exception.ValidationExceptions.Add(new Exception("Product is Already Discontinued"));
+                            }
+                        }
                     }
                 }
-
-               
-
-                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
-                
-                if (result.Discontinue == true)
-                {
-                    exception.ValidationExceptions.Add(new Exception("Product is Already Discontinued"));
-                }
-
                 if (exception.ValidationExceptions.Count > 0)
                 {
                     throw exception;
                 }
 
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
+                
                 result.Discontinue = true;
-                    context.SaveChanges();
+                context.SaveChanges();
                 
             }
            
@@ -348,6 +348,11 @@ namespace Inventory_System.Controllers
                             exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
                         }
                     }
+                }
+
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
                 }
 
                 result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();
