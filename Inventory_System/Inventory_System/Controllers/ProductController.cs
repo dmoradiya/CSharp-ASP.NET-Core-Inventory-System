@@ -45,9 +45,9 @@ namespace Inventory_System.Controllers
                     }
                     else
                     {
-                        if (!context.Products.Any(x=>x.ID == parsedID))
+                        if (context.Products.Any(x=>x.ID == parsedID))
                         {
-                            exception.ValidationExceptions.Add(new Exception("Product Does Not Exist"));
+                            exception.ValidationExceptions.Add(new Exception("Product ID already Exist"));
                         }
                     }
                 }
@@ -79,7 +79,7 @@ namespace Inventory_System.Controllers
                 }
                 else
                 {
-                    if (!int.TryParse(id, out parsedQuantity))
+                    if (!int.TryParse(quantity, out parsedQuantity))
                     {
                         exception.ValidationExceptions.Add(new Exception("Quantity not Valid"));
                     }
@@ -98,8 +98,8 @@ namespace Inventory_System.Controllers
                 }
                 else
                 {
-
-                    if (discontinue.Length !=4 || discontinue.Length != 5  )
+                    
+                    if (discontinue.Length > 5 || discontinue.Length < 4)
                     {
                         exception.ValidationExceptions.Add(new Exception("Only Accept 'true' OR 'false' value"));
                     }
@@ -255,12 +255,12 @@ namespace Inventory_System.Controllers
         }
         public List<Product> GetInventory()
         {
-            List<Product> result;
+            List<Product> results;
             using (InventoryContext context = new InventoryContext())
             {
-                result = context.Products.ToList();
+                results = context.Products.ToList();
             }
-            return result;
+            return results;
         }
 
         public Product GetProductByID(string id)
